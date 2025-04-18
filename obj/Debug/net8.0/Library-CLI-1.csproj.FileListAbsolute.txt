@@ -1,0 +1,15 @@
+D:\Library-CLI-1\bin\Debug\net8.0\Library-CLI-1.exe
+D:\Library-CLI-1\bin\Debug\net8.0\Library-CLI-1.deps.json
+D:\Library-CLI-1\bin\Debug\net8.0\Library-CLI-1.runtimeconfig.json
+D:\Library-CLI-1\bin\Debug\net8.0\Library-CLI-1.dll
+D:\Library-CLI-1\bin\Debug\net8.0\Library-CLI-1.pdb
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.GeneratedMSBuildEditorConfig.editorconfig
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.AssemblyInfoInputs.cache
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.AssemblyInfo.cs
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.csproj.CoreCompileInputs.cache
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.sourcelink.json
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.dll
+D:\Library-CLI-1\obj\Debug\net8.0\refint\Library-CLI-1.dll
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.pdb
+D:\Library-CLI-1\obj\Debug\net8.0\Library-CLI-1.genruntimeconfig.cache
+D:\Library-CLI-1\obj\Debug\net8.0\ref\Library-CLI-1.dll

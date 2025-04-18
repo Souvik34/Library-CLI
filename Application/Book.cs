@@ -2,13 +2,15 @@ namespace LibrarySystem
 {
     public class Book
     {
-        public string Title { get; set; } = "";
-        public string Author { get; set; } = "";
+        public string Title { get; set; }
+        public string Author { get; set; }
         public bool IsBorrowed { get; set; }
 
-        public override string ToString()
+        public Book(string title, string author, bool isBorrowed = false)
         {
-            return $"[ {(IsBorrowed ? "Borrowed" : "Available")} ] Title: {Title}, Author: {Author}";
+            Title = title;
+            Author = author;
+            IsBorrowed = isBorrowed;
         }
     }
 }

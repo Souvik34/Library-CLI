@@ -6,108 +6,120 @@ namespace LibrarySystem
 {
     public class Library
     {
-        private List<Book> books = new();
-        private const string FilePath = "library.txt";
+        private List<Book> books;
+
+        public Library()
+        {
+            books = new List<Book>();
+        }
 
         public void LoadData()
         {
-            if (File.Exists(FilePath))
+            // Load data from file if exists
+            if (File.Exists("libraryData.txt"))
             {
-                foreach (var line in File.ReadAllLines(FilePath))
+                var lines = File.ReadAllLines("libraryData.txt");
+                foreach (var line in lines)
                 {
-                    var parts = line.Split('|');
-                    if (parts.Length == 3)
-                    {
-                        books.Add(new Book
-                        {
-                            Title = parts[0],
-                            Author = parts[1],
-                            IsBorrowed = bool.Parse(parts[2])
-                        });
-                    }
+                    var data = line.Split(',');
+                    var book = new Book(data[0], data[1], bool.Parse(data[2]));
+                    books.Add(book);
                 }
             }
         }
 
         public void SaveData()
         {
-            using StreamWriter sw = new(FilePath);
-            foreach (var b in books)
-                sw.WriteLine($"{b.Title}|{b.Author}|{b.IsBorrowed}");
+            var lines = new List<string>();
+            foreach (var book in books)
+            {
+                lines.Add($"{book.Title},{book.Author},{book.IsBorrowed}");
+            }
+            File.WriteAllLines("libraryData.txt", lines);
         }
 
         public void AddBook()
         {
-            Console.Write("Enter title: ");
-            string title = Console.ReadLine() ?? "";
+            Console.Write("Enter book title: ");
+            string title = Console.ReadLine();
             Console.Write("Enter author: ");
-            string author = Console.ReadLine() ?? "";
+            string author = Console.ReadLine();
 
-            books.Add(new Book { Title = title, Author = author });
-            Console.WriteLine("Book added.");
+            books.Add(new Book(title, author));
+            Console.WriteLine("Book added successfully.");
         }
 
         public void DeleteBook()
         {
-            Console.Write("Enter title to delete: ");
-            string title = Console.ReadLine() ?? "";
-            var book = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-            if (book != null)
+            Console.Write("Enter book title to delete: ");
+            string title = Console.ReadLine();
+            var bookToRemove = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+
+            if (bookToRemove != null)
             {
-                books.Remove(book);
-                Console.WriteLine("Book deleted.");
+                books.Remove(bookToRemove);
+                Console.WriteLine("Book deleted successfully.");
             }
-            else Console.WriteLine("Book not found.");
+            else
+            {
+                Console.WriteLine("Book not found.");
+            }
         }
 
         public void ViewBooks()
         {
-            if (books.Count == 0)
-                Console.WriteLine("No books available.");
-            else
-                foreach (var book in books)
-                    Console.WriteLine(book);
+            Console.WriteLine("\n--- List of Books ---");
+            foreach (var book in books)
+            {
+                Console.WriteLine($"Title: {book.Title}, Author: {book.Author}, Borrowed: {(book.IsBorrowed ? "Yes" : "No")}");
+            }
         }
 
         public void BorrowBook()
         {
-            Console.Write("Enter title to borrow: ");
-            string title = Console.ReadLine() ?? "";
+            Console.Write("Enter book title to borrow: ");
+            string title = Console.ReadLine();
             var book = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
 
-            if (book != null && !book.IsBorrowed)
+            if (book != null)
             {
-                book.IsBorrowed = true;
-                Console.WriteLine("Book borrowed.");
-            }
-            else if (book == null)
-            {
-                Console.WriteLine("Book not found.");
+                if (!book.IsBorrowed)
+                {
+                    book.IsBorrowed = true;
+                    Console.WriteLine($"You have successfully borrowed '{book.Title}'.");
+                }
+                else
+                {
+                    Console.WriteLine("This book is already borrowed.");
+                }
             }
             else
             {
-                Console.WriteLine("Book is already borrowed.");
+                Console.WriteLine("Book not found.");
             }
         }
 
         public void ReturnBook()
         {
-            Console.Write("Enter title to return: ");
-            string title = Console.ReadLine() ?? "";
+            Console.Write("Enter book title to return: ");
+            string title = Console.ReadLine();
             var book = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
 
-            if (book != null && book.IsBorrowed)
+            if (book != null)
             {
-                book.IsBorrowed = false;
-                Console.WriteLine("Book returned.");
-            }
-            else if (book == null)
-            {
-                Console.WriteLine("Book not found.");
+                if (book.IsBorrowed)
+                {
+                    book.IsBorrowed = false;
+                    Console.WriteLine($"You have successfully returned '{book.Title}'.");
+                }
+                else
+                {
+                    Console.WriteLine("This book wasn't borrowed.");
+                }
             }
             else
             {
-                Console.WriteLine("Book wasn't borrowed.");
+                Console.WriteLine("Book not found.");
             }
         }
     }
