@@ -7,24 +7,30 @@ namespace LibrarySystem
         private string _title;
         private string _author;
 
-        public string Title 
-        { 
+        public string Title
+        {
             get { return _title; }
-            set 
+            set
             {
                 if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("Title cannot be empty.");
+                {
+                    Console.WriteLine("Title cannot be empty.");
+                    return;
+                }
                 _title = value;
             }
         }
 
-        public string Author 
-        { 
+        public string Author
+        {
             get { return _author; }
-            set 
+            set
             {
                 if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("Author cannot be empty.");
+                {
+                    Console.WriteLine("Author cannot be empty.");
+                    return;
+                }
                 _author = value;
             }
         }
@@ -42,18 +48,24 @@ namespace LibrarySystem
         public void BorrowBook()
         {
             if (IsBorrowed)
-                throw new InvalidOperationException("This book is already borrowed.");
+            {
+                Console.WriteLine("This book is already borrowed.");
+                return;
+            }
             IsBorrowed = true;
+            Console.WriteLine($"You have successfully borrowed '{Title}'.");
         }
 
         // Return the book
         public void ReturnBook()
         {
             if (!IsBorrowed)
-                throw new InvalidOperationException("This book is not borrowed.");
+            {
+                Console.WriteLine("This book was not borrowed.");
+                return;
+            }
             IsBorrowed = false;
+            Console.WriteLine($"You have successfully returned '{Title}'.");
         }
-
-     
     }
 }

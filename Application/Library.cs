@@ -45,6 +45,12 @@ namespace LibrarySystem
             Console.Write("Enter author: ");
             string author = Console.ReadLine();
 
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(author))
+            {
+                Console.WriteLine("Title and Author cannot be empty.");
+                return;
+            }
+
             books.Add(new Book(title, author));
             Console.WriteLine("Book added successfully.");
         }
@@ -83,15 +89,7 @@ namespace LibrarySystem
 
             if (book != null)
             {
-                if (!book.IsBorrowed)
-                {
-                    book.IsBorrowed = true;
-                    Console.WriteLine($"You have successfully borrowed '{book.Title}'.");
-                }
-                else
-                {
-                    Console.WriteLine("This book is already borrowed.");
-                }
+                book.BorrowBook();
             }
             else
             {
@@ -107,15 +105,7 @@ namespace LibrarySystem
 
             if (book != null)
             {
-                if (book.IsBorrowed)
-                {
-                    book.IsBorrowed = false;
-                    Console.WriteLine($"You have successfully returned '{book.Title}'.");
-                }
-                else
-                {
-                    Console.WriteLine("This book wasn't borrowed.");
-                }
+                book.ReturnBook();
             }
             else
             {
