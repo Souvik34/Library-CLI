@@ -4,68 +4,66 @@ namespace LibrarySystem
 {
     public class Book
     {
-        private string _title;
-        private string _author;
-
-        public string Title
-        {
-            get { return _title; }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    Console.WriteLine("Title cannot be empty.");
-                    return;
-                }
-                _title = value;
-            }
-        }
-
-        public string Author
-        {
-            get { return _author; }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    Console.WriteLine("Author cannot be empty.");
-                    return;
-                }
-                _author = value;
-            }
-        }
-
+        public string Title { get; }
+        public string Author { get; }
         public bool IsBorrowed { get; private set; }
+        public DateTime? IssueDate { get; private set; }
+        public DateTime? ReturnDate => IssueDate?.AddDays(7);
+        public bool IsReissued { get; private set; }
 
-        public Book(string title, string author, bool isBorrowed = false)
+        public Book(string title, string author)
         {
             Title = title;
             Author = author;
-            IsBorrowed = isBorrowed;
+            IsBorrowed = false;
+            IssueDate = null;
+            IsReissued = false;
         }
 
-        // Borrow the book
-        public void BorrowBook()
+        public bool CanReissue()
+        {
+            return IsBorrowed && ReturnDate.HasValue && DateTime.Now > ReturnDate && !IsReissued;
+        }
+
+        public void Borrow()
         {
             if (IsBorrowed)
             {
                 Console.WriteLine("This book is already borrowed.");
                 return;
             }
+
             IsBorrowed = true;
-            Console.WriteLine($"You have successfully borrowed '{Title}'.");
+            IssueDate = DateTime.Now;
+            IsReissued = false;
+            Console.WriteLine($"Book '{Title}' has been borrowed.");
         }
 
-        // Return the book
-        public void ReturnBook()
+        public void Return()
         {
             if (!IsBorrowed)
             {
                 Console.WriteLine("This book was not borrowed.");
                 return;
             }
+
             IsBorrowed = false;
-            Console.WriteLine($"You have successfully returned '{Title}'.");
+            IssueDate = null;
+            IsReissued = false;
+            Console.WriteLine($"Book '{Title}' has been returned.");
+        }
+
+        public void Reissue()
+        {
+            if (!CanReissue())
+            {
+                Console.WriteLine("Reissue not allowed. Either the return date hasn't passed or it's already reissued.");
+                return;
+            }
+
+            IssueDate = DateTime.Now;
+            IsReissued = true;
+            Console.WriteLine($"Book '{Title}' has been reissued.");
         }
     }
 }

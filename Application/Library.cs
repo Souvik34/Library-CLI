@@ -1,69 +1,80 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Text;
 
-namespace LibrarySystem
+namespace LibrarySystem.Application
 {
+    public class Book
+    {
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public bool IsBorrowed { get; set; }
+        public string BorrowedBy { get; set; } // User who borrowed the book
+        public DateTime? IssueDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
+        public bool IsReissued { get; set; } // Flag to check if the book was reissued after the return date
+
+        public Book(string title, string author)
+        {
+            Title = title;
+            Author = author;
+            IsBorrowed = false;
+            IsReissued = false;
+        }
+
+        // Method to borrow a book
+        public void BorrowBook(string username)
+        {
+            if (IsBorrowed)
+                throw new InvalidOperationException("This book is already borrowed.");
+            IsBorrowed = true;
+            BorrowedBy = username;
+            IssueDate = DateTime.Now;
+            ReturnDate = IssueDate.Value.AddDays(7); // Set return date to 7 days from issue date
+        }
+
+        // Method to return a book
+        public void ReturnBook()
+        {
+            if (!IsBorrowed)
+                throw new InvalidOperationException("This book is not borrowed.");
+            IsBorrowed = false;
+            if (DateTime.Now > ReturnDate.Value) // Check if the return date has passed
+            {
+                IsReissued = true; // Set to reissued if the book is returned after the due date
+            }
+            BorrowedBy = null;
+            IssueDate = null;
+            ReturnDate = null;
+        }
+    }
+
     public class Library
     {
         private List<Book> books;
+        private List<User.User> users;
 
         public Library()
         {
             books = new List<Book>();
+            users = new List<User.User>();
         }
 
-        public void LoadData()
+        // Method to add a new book to the library
+        public void AddBook(string title, string author)
         {
-            // Load data from file if exists
-            if (File.Exists("libraryData.txt"))
-            {
-                var lines = File.ReadAllLines("libraryData.txt");
-                foreach (var line in lines)
-                {
-                    var data = line.Split(',');
-                    var book = new Book(data[0], data[1], bool.Parse(data[2]));
-                    books.Add(book);
-                }
-            }
-        }
-
-        public void SaveData()
-        {
-            var lines = new List<string>();
-            foreach (var book in books)
-            {
-                lines.Add($"{book.Title},{book.Author},{book.IsBorrowed}");
-            }
-            File.WriteAllLines("libraryData.txt", lines);
-        }
-
-        public void AddBook()
-        {
-            Console.Write("Enter book title: ");
-            string title = Console.ReadLine();
-            Console.Write("Enter author: ");
-            string author = Console.ReadLine();
-
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(author))
-            {
-                Console.WriteLine("Title and Author cannot be empty.");
-                return;
-            }
-
             books.Add(new Book(title, author));
             Console.WriteLine("Book added successfully.");
         }
 
-        public void DeleteBook()
+        // Method to delete a book from the library
+        public void DeleteBook(string title)
         {
-            Console.Write("Enter book title to delete: ");
-            string title = Console.ReadLine();
-            var bookToRemove = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-
-            if (bookToRemove != null)
+            var book = books.FirstOrDefault(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+            if (book != null)
             {
-                books.Remove(bookToRemove);
+                books.Remove(book);
                 Console.WriteLine("Book deleted successfully.");
             }
             else
@@ -72,6 +83,7 @@ namespace LibrarySystem
             }
         }
 
+        // Method to view all books in the library
         public void ViewBooks()
         {
             Console.WriteLine("\n--- List of Books ---");
@@ -81,15 +93,21 @@ namespace LibrarySystem
             }
         }
 
-        public void BorrowBook()
+        // Method for a user to borrow a book
+        public void BorrowBook(string title, string username)
         {
-            Console.Write("Enter book title to borrow: ");
-            string title = Console.ReadLine();
-            var book = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-
+            var book = books.FirstOrDefault(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
             if (book != null)
             {
-                book.BorrowBook();
+                try
+                {
+                    book.BorrowBook(username);
+                    Console.WriteLine($"You have successfully borrowed '{book.Title}'.");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
             else
             {
@@ -97,20 +115,57 @@ namespace LibrarySystem
             }
         }
 
-        public void ReturnBook()
+        // Method for a user to return a book
+        public void ReturnBook(string title)
         {
-            Console.Write("Enter book title to return: ");
-            string title = Console.ReadLine();
-            var book = books.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-
+            var book = books.FirstOrDefault(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
             if (book != null)
             {
-                book.ReturnBook();
+                try
+                {
+                    book.ReturnBook();
+                    Console.WriteLine($"You have successfully returned '{book.Title}'.");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
             else
             {
                 Console.WriteLine("Book not found.");
             }
+        }
+
+        // Method for viewing the borrowed books by users (Admin only)
+        public void ViewBorrowedBooks()
+        {
+            Console.WriteLine("\n--- Borrowed Books ---");
+            foreach (var book in books.Where(b => b.IsBorrowed))
+            {
+                Console.WriteLine($"Book: {book.Title}, Borrowed By: {book.BorrowedBy}, Issue Date: {book.IssueDate?.ToShortDateString()}, Return Date: {book.ReturnDate?.ToShortDateString()}, Reissued: {(book.IsReissued ? "Yes" : "No")}");
+            }
+        }
+
+        // Method for registering a new user
+        public void RegisterUser(string username, string password)
+        {
+            if (users.Any(u => u.Username == username))
+            {
+                Console.WriteLine("Username already exists. Please choose a different username.");
+                return;
+            }
+
+            var user = new User.User(username, password);
+            users.Add(user);
+            Console.WriteLine("User registered successfully.");
+        }
+
+        // Method for authenticating a user (simplified)
+        public bool AuthenticateUser(string username, string password)
+        {
+            var user = users.FirstOrDefault(u => u.Username == username && u.Password == password);
+            return user != null;
         }
     }
 }
