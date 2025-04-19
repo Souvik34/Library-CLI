@@ -1,148 +1,92 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using LibrarySystem.Application;  // Correct namespace for the User class
+// using Application;
+
 
 namespace LibrarySystem.Application
 {
     public class Admin
     {
+        private string adminUsername = "admin";
+        private string adminPassword = "admin123";
+        private Library library;
         private List<User> users;
 
-        public Admin()
+        public Admin(Library library)
         {
-            users = new List<User>();
+            this.library = library;
+            this.users = UserStore.Users;
         }
 
-        // Admin authentication
-        public bool AuthenticateAdmin(string username, string password)
+        public void Login()
         {
-            // Simple hardcoded admin login for demonstration
-            return username == "admin" && password == "admin123";
-        }
+            Console.Write("Enter admin username: ");
+            string username = Console.ReadLine();
+            Console.Write("Enter admin password: ");
+            string password = Console.ReadLine();
 
-        // Method to view all users and their borrowed books
-        public void ViewAllUsersAndBooks()
-        {
-            Console.WriteLine("\n--- Users and Borrowed Books ---");
-            foreach (var user in users)
+            if (username != adminUsername || password != adminPassword)
             {
-                Console.WriteLine($"Username: {user.Username}");
-                foreach (var book in user.BorrowedBooks)
-                {
-                    Console.WriteLine($"Book: {book.Title}, Issue Date: {book.IssueDate?.ToShortDateString()}, Return Date: {book.ReturnDate?.ToShortDateString()}, Reissue: {(book.CanBeReissued ? "Yes" : "No")}");
-                }
-                Console.WriteLine();
-            }
-        }
-
-        // Method to add a user
-        public void AddUser(string username, string password)
-        {
-            if (users.Exists(u => u.Username == username))
-            {
-                Console.WriteLine("User already exists.");
+                Console.WriteLine("Access denied.");
                 return;
             }
 
-            User newUser = new User(username, password);
-            users.Add(newUser);
-            Console.WriteLine("User added successfully.");
-        }
+            Console.WriteLine("Welcome, Admin!");
 
-        // Method to delete a user
-        public void DeleteUser(string username)
-        {
-            var userToDelete = users.Find(u => u.Username == username);
-            if (userToDelete != null)
+            while (true)
             {
-                users.Remove(userToDelete);
-                Console.WriteLine("User deleted successfully.");
-            }
-            else
-            {
-                Console.WriteLine("User not found.");
-            }
-        }
+                Console.WriteLine("\n1. Add Book\n2. View All Books\n3. View All Users & Borrowed Books\n4. Logout");
+                Console.Write("Choose an option: ");
+                string option = Console.ReadLine();
 
-        // Method to view borrowed books of a specific user
-        public void ViewUserBorrowedBooks(string username)
-        {
-            var user = users.Find(u => u.Username == username);
-            if (user != null)
-            {
-                Console.WriteLine($"\n--- {user.Username}'s Borrowed Books ---");
-                foreach (var book in user.BorrowedBooks)
+                switch (option)
                 {
-                    Console.WriteLine($"Book: {book.Title}, Issue Date: {book.IssueDate?.ToShortDateString()}, Return Date: {book.ReturnDate?.ToShortDateString()}, Reissue: {(book.CanBeReissued ? "Yes" : "No")}");
+                    case "1":
+                        Console.Write("Enter book title: ");
+                        string title = Console.ReadLine();
+                        Console.Write("Enter book author: ");
+                        string author = Console.ReadLine();
+                        library.AddBook(title, author);
+                        Console.WriteLine("Book added.");
+                        break;
+                    case "2":
+                        library.ViewBooks();
+                        break;
+                    case "3":
+                        ViewUsers();
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        break;
                 }
             }
-            else
-            {
-                Console.WriteLine("User not found.");
-            }
         }
 
-        // Method to add a book to a user's borrowed list
-        public void BorrowBookToUser(string username, Book book)
+        private void ViewUsers()
         {
-            var user = users.Find(u => u.Username == username);
-            if (user != null)
+            if (!users.Any())
             {
-                book.IssueDate = DateTime.Now;
-                book.ReturnDate = book.IssueDate.Value.AddDays(7); // Set return date for 1 week
-                user.BorrowedBooks.Add(book);
-                Console.WriteLine($"Book '{book.Title}' borrowed by {user.Username}. Issue Date: {book.IssueDate?.ToShortDateString()}, Return Date: {book.ReturnDate?.ToShortDateString()}");
+                Console.WriteLine("No users registered.");
+                return;
             }
-            else
-            {
-                Console.WriteLine("User not found.");
-            }
-        }
 
-        // Method to return a borrowed book
-        public void ReturnBookFromUser(string username, Book book)
-        {
-            var user = users.Find(u => u.Username == username);
-            if (user != null)
+            foreach (var user in users)
             {
-                var borrowedBook = user.BorrowedBooks.Find(b => b.Title == book.Title);
-                if (borrowedBook != null)
+                Console.WriteLine($"\nUser: {user.Username}");
+                if (!user.BorrowedBooks.Any())
                 {
-                    user.BorrowedBooks.Remove(borrowedBook);
-                    Console.WriteLine($"Book '{book.Title}' returned by {user.Username}.");
+                    Console.WriteLine("  No books borrowed.");
                 }
                 else
                 {
-                    Console.WriteLine("Book not found in user's borrowed list.");
+                    foreach (var book in user.BorrowedBooks)
+                    {
+                        Console.WriteLine($"  Title: {book.Title}, Issue: {book.IssueDate}, Return: {book.ReturnDate}, Reissue: {(book.IsReissued ? "Yes" : "No")}");
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine("User not found.");
-            }
-        }
-
-        // Method to reissue a book if the return date has passed
-        public void ReissueBook(string username, Book book)
-        {
-            var user = users.Find(u => u.Username == username);
-            if (user != null)
-            {
-                var borrowedBook = user.BorrowedBooks.Find(b => b.Title == book.Title);
-                if (borrowedBook != null && DateTime.Now > borrowedBook.ReturnDate)
-                {
-                    borrowedBook.ReturnDate = DateTime.Now.AddDays(7); // Reissue for another 7 days
-                    borrowedBook.CanBeReissued = true;
-                    Console.WriteLine($"Book '{book.Title}' has been reissued. New Return Date: {borrowedBook.ReturnDate?.ToShortDateString()}");
-                }
-                else
-                {
-                    Console.WriteLine("Book cannot be reissued.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("User not found.");
             }
         }
     }

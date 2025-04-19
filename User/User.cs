@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Library_CLI_1;
 
-namespace LibrarySystem
+namespace LibrarySystem.Application
 {
     public class User
     {
@@ -18,64 +20,41 @@ namespace LibrarySystem
 
         public void BorrowBook(Book book)
         {
-            if (book == null)
+            if (book == null || book.IsBorrowed)
             {
-                Console.WriteLine("Invalid book.");
+                Console.WriteLine("Book is not available.");
                 return;
             }
 
-            if (book.IsBorrowed)
-            {
-                Console.WriteLine("This book is already borrowed.");
-                return;
-            }
-
-            book.Borrow();
+            book.BorrowBook(Username);
             BorrowedBooks.Add(book);
         }
 
         public void ReturnBook(string title)
         {
-            var book = BorrowedBooks.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+            var book = BorrowedBooks.FirstOrDefault(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
             if (book != null)
             {
-                book.Return();
+                book.ReturnBook();
                 BorrowedBooks.Remove(book);
             }
             else
             {
-                Console.WriteLine("You haven't borrowed this book.");
-            }
-        }
-
-        public void ReissueBook(string title)
-        {
-            var book = BorrowedBooks.Find(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-            if (book != null)
-            {
-                book.Reissue();
-            }
-            else
-            {
-                Console.WriteLine("You haven't borrowed this book.");
+                Console.WriteLine("Book not found in your borrowed list.");
             }
         }
 
         public void ViewBorrowedBooks()
         {
-            if (BorrowedBooks.Count == 0)
+            if (!BorrowedBooks.Any())
             {
                 Console.WriteLine("No books borrowed.");
                 return;
             }
 
-            Console.WriteLine($"\nBorrowed books by {Username}:");
             foreach (var book in BorrowedBooks)
             {
-                Console.WriteLine($"- {book.Title} by {book.Author}");
-                Console.WriteLine($"  Issued: {book.IssueDate?.ToString("dd MMM yyyy")}");
-                Console.WriteLine($"  Return by: {book.ReturnDate?.ToString("dd MMM yyyy")}");
-                Console.WriteLine($"  Reissued: {(book.IsReissued ? "Yes" : "No")}\n");
+                Console.WriteLine($"Title: {book.Title}, Author: {book.Author}, Issue: {book.IssueDate}, Return: {book.ReturnDate}, Reissue: {(book.IsReissued ? "Yes" : "No")}");
             }
         }
     }
