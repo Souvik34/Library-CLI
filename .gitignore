@@ -1,0 +1,16 @@
+# Ignore bin and obj folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]evelopment/
+[Dd]ist/
+[Dd]istribution/
