@@ -4,6 +4,7 @@ using System.Collections.Generic;
 // using Application;
 
 
+
 namespace LibrarySystem.Application
 {
     public class Admin
@@ -19,51 +20,51 @@ namespace LibrarySystem.Application
             this.users = UserStore.Users;
         }
 
-        public void Login()
+      public void Login()
+{
+    Console.Write("Enter admin username: ");
+    string username = Console.ReadLine();
+    Console.Write("Enter admin password: ");
+    string password = Console.ReadLine();
+
+  if (username.ToLower() != adminUsername.ToLower() || password != adminPassword) 
+    {
+        Console.WriteLine("Access denied.");
+        return;
+    }
+
+    Console.WriteLine("Welcome, Admin!");
+
+    while (true)
+    {
+        Console.WriteLine("\n1. Add Book\n2. View All Books\n3. View All Users & Borrowed Books\n4. Logout");
+        Console.Write("Choose an option: ");
+        string option = Console.ReadLine();
+
+        switch (option)
         {
-            Console.Write("Enter admin username: ");
-            string username = Console.ReadLine();
-            Console.Write("Enter admin password: ");
-            string password = Console.ReadLine();
-
-            if (username != adminUsername || password != adminPassword)
-            {
-                Console.WriteLine("Access denied.");
+            case "1":
+                Console.Write("Enter book title: ");
+                string title = Console.ReadLine();
+                Console.Write("Enter book author: ");
+                string author = Console.ReadLine();
+                library.AddBook(title, author);
+                Console.WriteLine("Book added.");
+                break;
+            case "2":
+                library.ViewBooks();
+                break;
+            case "3":
+                ViewUsers();
+                break;
+            case "4":
                 return;
-            }
-
-            Console.WriteLine("Welcome, Admin!");
-
-            while (true)
-            {
-                Console.WriteLine("\n1. Add Book\n2. View All Books\n3. View All Users & Borrowed Books\n4. Logout");
-                Console.Write("Choose an option: ");
-                string option = Console.ReadLine();
-
-                switch (option)
-                {
-                    case "1":
-                        Console.Write("Enter book title: ");
-                        string title = Console.ReadLine();
-                        Console.Write("Enter book author: ");
-                        string author = Console.ReadLine();
-                        library.AddBook(title, author);
-                        Console.WriteLine("Book added.");
-                        break;
-                    case "2":
-                        library.ViewBooks();
-                        break;
-                    case "3":
-                        ViewUsers();
-                        break;
-                    case "4":
-                        return;
-                    default:
-                        Console.WriteLine("Invalid choice.");
-                        break;
-                }
-            }
+            default:
+                Console.WriteLine("Invalid choice.");
+                break;
         }
+    }
+}
 
         private void ViewUsers()
         {

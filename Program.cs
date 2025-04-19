@@ -10,7 +10,7 @@ class Program
 
         while (true)
         {
-            Console.WriteLine("\n📚 Library Management System");
+            Console.WriteLine("\n ============================ Library Management System ============================");
             Console.WriteLine("1. Admin Login");
             Console.WriteLine("2. Register User");
             Console.WriteLine("3. User Login");

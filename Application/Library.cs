@@ -51,7 +51,7 @@ namespace LibrarySystem.Application
 
             while (true)
             {
-                Console.WriteLine("\n1. View All Books\n2. Borrow Book\n3. Return Book\n4. View My Borrowed Books\n5. Logout");
+                Console.WriteLine("\n1. View All Books\n2. Borrow Book\n3. Return Book\n4. View My Borrowed Books\n5. Delete a Book\n6. Logout");
                 Console.Write("Select an option: ");
                 string choice = Console.ReadLine();
 
@@ -75,6 +75,11 @@ namespace LibrarySystem.Application
                         user.ViewBorrowedBooks();
                         break;
                     case "5":
+                        Console.Write("Enter book title to delete: ");
+                        string deleteTitle = Console.ReadLine();
+                        DeleteBook(deleteTitle);
+                        break;
+                    case "6":
                         return;
                     default:
                         Console.WriteLine("Invalid option.");
@@ -89,6 +94,21 @@ namespace LibrarySystem.Application
             {
                 string status = book.IsBorrowed ? $"Borrowed by {book.BorrowedBy}" : "Available";
                 Console.WriteLine($"Title: {book.Title}, Author: {book.Author}, Status: {status}");
+            }
+        }
+
+        public void DeleteBook(string title)
+        {
+            Book bookToDelete = books.FirstOrDefault(b => b.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+
+            if (bookToDelete != null)
+            {
+                books.Remove(bookToDelete);
+                Console.WriteLine($"The book '{title}' has been deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Book with the title '{title}' was not found.");
             }
         }
 
